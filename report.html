@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Health Report Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  background: white;
+  width: 360px;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  text-align: center;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(20px);}
+  to {opacity:1; transform: translateY(0);}
+}
+
+h2, h3 { color: #0f172a; }
+p { color: #475569; font-size: 14px; }
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.04);
+}
+
+.secondary {
+  background: #94a3b8;
+  color: #0f172a;
+}
+
+img {
+  width: 220px;
+  margin-top: 15px;
+}
+
+.hidden { display: none; }
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="card" id="loginPage">
+  <h2>Welcome</h2>
+  <p>Enter your email to continue</p>
+  <input id="email" placeholder="Email">
+  <button onclick="login()">Continue</button>
+</div>
+
+<!-- HOME -->
+<div class="card hidden" id="homePage">
+  <h3>Your Report</h3>
+  <p>Urine Report</p>
+  <button onclick="openReport()">Open Report</button>
+  <button class="secondary" onclick="showQR()">Scan QR Code</button>
+  <button class="secondary" onclick="logout()">Logout</button>
+</div>
+
+<!-- QR -->
+<div class="card hidden" id="qrPage">
+  <h3>Scan QR Code</h3>
+  <p>Scan this QR to open the report</p>
+  <img src="qr.png" alt="QR Code">
+  <button onclick="scanQR()">Simulate Scan</button>
+  <button class="secondary" onclick="backHome()">Back</button>
+</div>
+
+<script>
+const REPORT_URL =
+"https://docs.google.com/document/d/1LQbisNb3l4fZTbHGo00shLwOGHrDUcUEjs4Y1Tg7bDM/edit?usp=sharing";
+
+// localStorage database
+let database = JSON.parse(localStorage.getItem("database"));
+if (!database) {
+  database = { users: [] };
+  localStorage.setItem("database", JSON.stringify(database));
+}
+
+let currentUser = null;
+
+function hideAll() {
+  document.getElementById("loginPage").classList.add("hidden");
+  document.getElementById("homePage").classList.add("hidden");
+  document.getElementById("qrPage").classList.add("hidden");
+}
+
+function login() {
+  const email = document.getElementById("email").value.trim();
+  if (!email) return alert("Enter email");
+
+  let user = database.users.find(u => u.email === email);
+  if (!user) {
+    user = { email };
+    database.users.push(user);
+    localStorage.setItem("database", JSON.stringify(database));
+  }
+
+  currentUser = user;
+  hideAll();
+  document.getElementById("homePage").classList.remove("hidden");
+}
+
+function openReport() {
+  window.open(REPORT_URL, "_blank");
+}
+
+function showQR() {
+  hideAll();
+  document.getElementById("qrPage").classList.remove("hidden");
+}
+
+function scanQR() {
+  window.open(REPORT_URL, "_blank");
+}
+
+function backHome() {
+  hideAll();
+  document.getElementById("homePage").classList.remove("hidden");
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById("email").value = "";
+  hideAll();
+  document.getElementById("loginPage").classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
